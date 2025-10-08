@@ -45,42 +45,43 @@ def build(ctx: click.Context, dry_run: bool) -> None:
     """Build the linkfarm from StashApp data."""
     config_path = ctx.obj["config_path"]
     verbose = ctx.obj["verbose"]
-    
+
     try:
         # Load configuration
         config_manager = ConfigManager(config_path)
         config = config_manager.load()
-        
+
         if verbose:
             console.print(f"[dim]Farm path: {config.farm_path}[/dim]")
             console.print(f"[dim]Use title: {config.use_title}[/dim]")
-        
+
         # Initialize StashApp client
         stash_client = StashClient(
             url=config.stash_url,
             api_key=config.api_key
         )
-        
+
         # Initialize LinkFarm manager
         linkfarm = LinkFarmManager(
             farm_path=config.farm_path,
+            path_map=config.path_map or {},
             use_title=config.use_title,
-            dry_run=dry_run
+            dry_run=dry_run,
         )
-        
+
         console.print("[bold green]Building linkfarm...[/bold green]")
-        
+
         # Process tags
         if config.tags:
             console.print("[blue]Processing tags...[/blue]")
-            
+
             # Get favourite tags if enabled
             if config.tags.favourite:
                 fav_tags = stash_client.get_favourite_tags()
                 for tag in track(fav_tags, description="Processing favourite tags"):
                     scenes = stash_client.get_scenes_by_tag(tag["id"])
                     linkfarm.create_tag_links(tag["name"], scenes)
-            
+
             # Get manual tag overrides
             if config.tags.names:
                 for tag_name in track(config.tags.names, description="Processing manual tags"):
@@ -90,18 +91,18 @@ def build(ctx: click.Context, dry_run: bool) -> None:
                         linkfarm.create_tag_links(tag_name, scenes)
                     else:
                         console.print(f"[yellow]Warning: Tag '{tag_name}' not found[/yellow]")
-        
+
         # Process performers
         if config.performers:
             console.print("[blue]Processing performers...[/blue]")
-            
+
             # Get favourite performers if enabled
             if config.performers.favourite:
                 fav_performers = stash_client.get_favourite_performers()
                 for performer in track(fav_performers, description="Processing favourite performers"):
                     scenes = stash_client.get_scenes_by_performer(performer["id"])
                     linkfarm.create_performer_links(performer["name"], scenes)
-            
+
             # Get manual performer overrides
             if config.performers.names:
                 for performer_name in track(config.performers.names, description="Processing manual performers"):
@@ -111,9 +112,9 @@ def build(ctx: click.Context, dry_run: bool) -> None:
                         linkfarm.create_performer_links(performer_name, scenes)
                     else:
                         console.print(f"[yellow]Warning: Performer '{performer_name}' not found[/yellow]")
-        
+
         console.print("[bold green]✓ Linkfarm build complete![/bold green]")
-        
+
     except FileNotFoundError:
         console.print(f"[red]Error: Configuration file '{config_path}' not found[/red]")
         console.print("Run 'tagfarm init' to create a sample configuration file.")

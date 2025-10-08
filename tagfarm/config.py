@@ -20,19 +20,23 @@ class PerformerConfig(BaseModel):
 
 class TagFarmConfig(BaseModel):
     """Main configuration model for TagFarm."""
-    
+
     # StashApp connection settings
     stash_url: str = Field(..., description="StashApp GraphQL endpoint URL")
     api_key: Optional[str] = Field(None, description="API key for authentication")
-    
+    path_map: Optional[Dict[str, str]] = Field(
+        None,
+        description="Mapping of source paths to target paths for media files",
+    )
+
     # LinkFarm settings
     farm_path: Path = Field(..., description="Path to the linkfarm directory")
     use_title: bool = Field(True, description="Use scene title for link names")
-    
+
     # Processing settings
     tags: Optional[TagConfig] = None
     performers: Optional[PerformerConfig] = None
-    
+
     @validator('farm_path')
     def validate_farm_path(cls, v):
         """Ensure farm_path is a Path object."""
