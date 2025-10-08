@@ -1,0 +1,25 @@
+# Stash TagFarm Configuration
+
+# StashApp connection settings
+stash_url: http://localhost:9999/graphql
+api_key: null  # Optional, set if your StashApp requires authentication
+
+# LinkFarm settings  
+farm_path: /path/to/linkfarm
+use_title: true  # Use scene title for link names instead of filename
+
+# Tag processing configuration
+tags:
+  favourite: true  # Include all favourite tags
+  names:
+    - Manual Tag
+    - Overrides
+    - Go Here
+
+# Performer processing configuration  
+performers:
+  favourite: true  # Include all favourite performers
+  names:
+    - Manual Performer
+    - Overrides
+    - Go Here
